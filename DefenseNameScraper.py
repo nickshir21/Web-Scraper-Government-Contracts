@@ -1,6 +1,5 @@
 import requests
 from bs4 import BeautifulSoup
-#import finnhub
 import json
 
 pageNumber = 1
@@ -34,11 +33,6 @@ while pageNumber < end:
                 companyName = (dataInText[:dataInText.index(",")])
                 if 'CORRECTION' in companyName:
                     break;
-
-                
-                #finnhub_client = finnhub.Client(api_key="cdo8viiad3i5o5olbh4gcdo8viiad3i5o5olbh50")
-                #print(finnhub_client.symbol_lookup(companyName))
-
                 try:
                     indexOfDollarSign = dataInText.index("$")
                 except:
