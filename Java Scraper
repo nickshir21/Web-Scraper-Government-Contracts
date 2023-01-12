@@ -1,0 +1,155 @@
+
+import java.lang.Object;
+import org.jsoup.Jsoup;
+import org.jsoup.helper.Validate;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+import org.jsoup.Connection;
+import java.util.Scanner;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.util.NoSuchElementException;
+
+public class defenseOrgScraper {
+public static Scanner in = new Scanner(System.in);
+
+    public static void main(String[] args) throws IOException {
+        boolean checker = false;
+    do {
+        File fillerFile = new File("/Users/nickshirley/Desktop/Java/Defense/fillerFile.txt");
+        System.out.print("Enter URL or enter E to exit: ");
+        String url = in.next();
+        if (url.equals("E") || url.equals("e")) {
+            checker = true;
+            break;
+        }
+        Document doc = Jsoup.connect(url).get();
+        Elements header = doc.select("h1");
+        String headerForReal = "";
+        for (Element h1 : header) {
+             headerForReal = h1.text();
+        }
+        String onlyDate = headerIsolator(headerForReal);
+        String filePath = "/Users/nickshirley/Desktop/Java/Defense/filler.txt";
+        fileCreation(filePath, doc, url);
+        File file = new File(filePath);
+        fillerRemover(file, headerForReal);
+        readFile(headerForReal, onlyDate);
+        try {
+           } catch (Exception e) {
+        }
+        } while (checker == false);
+    }
+    
+    public static void readFile(String headerForReal, String onlyDate) {
+        try { 
+           String filePath = "/Users/nickshirley/Desktop/Java/Defense/" + headerForReal + ".txt";
+           File file = new File(filePath);
+           Scanner lineRead = new Scanner(file);
+           String line = lineRead.nextLine();
+           String companyName = "";
+           File companyNameList = new File("/Users/nickshirley/Desktop/Java/Defense/CompanyNamesList.txt");
+          try {
+             FileWriter companyNamesEditor = new FileWriter(companyNameList, true);
+             while (lineRead.hasNextLine()) {
+                for (int i = 0; line.charAt(i) != ',';i++) {
+                     try { 
+                     String character = "" + line.charAt(i);
+                     companyName = companyName + "" + character;
+                     
+                     if (line.charAt(i + 1) == ',') {
+                         String award = awardIsolator(line);
+                         String companyNameString = String.format("%-16s" + "%-65s" + "%-20s", onlyDate, companyName, award);
+                         companyNamesEditor.write(companyNameString + "\n");
+                         line = lineRead.nextLine();
+                         companyName = "";
+                         i = -1;
+                     }
+                     } catch (StringIndexOutOfBoundsException e) {
+                         try { 
+                            line = lineRead.nextLine();
+                            i = -1;
+                            companyName = "";
+                         } catch (NoSuchElementException er) {
+                              break;
+                         }
+
+                     }
+                 }
+             }
+             companyNamesEditor.close();
+          } catch (IOException e) {
+              System.out.println("Error in File Writer");
+          } 
+
+        } catch (FileNotFoundException e) { 
+            System.out.println("Error in Read File Method");
+        }
+        
+    }
+    public static void fillerRemover(File file, String headerForReal) { 
+       try { 
+          String filePath = "/Users/nickshirley/Desktop/Java/Defense/" + headerForReal + ".txt";
+          File fileForFake = new File(filePath);
+          PrintWriter pw = new PrintWriter(fileForFake);
+          Scanner fillerRem = new Scanner(file);
+          fillerRem.nextLine();
+          fillerRem.nextLine();
+          fillerRem.nextLine();
+          fillerRem.nextLine();
+       while (fillerRem.hasNext()) {
+          String line = fillerRem.nextLine();
+          pw.write(line + "\n");
+       }
+       pw.close();
+       } catch (FileNotFoundException e) {
+          System.out.println("Error in Filler Remover");
+       }
+       
+    }
+    public static void fileCreation(String filePath, Document doc, String url) {
+        try {
+          File file = new File(filePath);
+          try { 
+          file.createNewFile();
+          } catch (IOException e) {
+            System.out.println("Error in file creation");
+          }
+          PrintWriter fileOutput = new PrintWriter(file);
+          Elements paragraphs = doc.select("p");
+          for (Element p : paragraphs) {
+               fileOutput.println(p.text());
+          }
+        fileOutput.close();
+        } catch (FileNotFoundException e) {
+          System.out.println("Error in File Path");
+        }
+     } 
+     public static String headerIsolator(String headerForReal) {
+         Scanner headerIsolation = new Scanner(headerForReal);
+         headerIsolation.next();
+         headerIsolation.next();
+         String onlyDate = headerIsolation.next();
+         String onlyDateFiller = headerIsolation.next();
+         if (onlyDateFiller.length() == 2) {
+             onlyDateFiller = "0" + onlyDateFiller;
+         }
+         onlyDate = onlyDate + " " + onlyDateFiller + " " + headerIsolation.nextInt();
+         return(onlyDate);
+     }
+     
+     public static String awardIsolator(String line) {
+         Scanner awardFinder = new Scanner(line);
+         String award = "";
+         int indexOfMoneySign = line.indexOf('$');
+         
+         for (; line.charAt(indexOfMoneySign) != ' '; indexOfMoneySign++) {
+              award = award + "" + line.charAt(indexOfMoneySign);
+         }
+         return(award);
+     }
+}
