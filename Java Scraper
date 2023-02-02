@@ -1,3 +1,5 @@
+// truly a mess of code. This was my first attempt at doing this with limited
+// experience in Java. Very hard to understand, but works. 
 
 import java.lang.Object;
 import org.jsoup.Jsoup;
